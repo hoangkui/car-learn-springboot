@@ -8,8 +8,8 @@ import org.mapstruct.MappingTarget;
 public interface ManufactureMapper {
     ManufactureResponse toResponse(ManufactureEntity entity);
 
-    ManufactureEntity toEntity(ManufactureRequest request);
 
     @Mapping(target = "id",ignore = true)
-    void updateModel( @MappingTarget ManufactureEntity entity,ManufactureRequest request);
+    ManufactureEntity toEntity(ManufactureRequest request);
+
 }
