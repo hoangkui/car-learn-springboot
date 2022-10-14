@@ -2,9 +2,10 @@ package com.example.demo.car;
 
 import com.example.demo.manufacture.ManufactureEntity;
 import com.example.demo.manufacture.ManufactureService;
+import com.querydsl.core.types.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CarService {
     private final CarRepository carRepository;
     private final ManufactureService manufactureService;
@@ -34,17 +35,17 @@ public class CarService {
     }
 
 
-    public Page<CarEntity> pageForFilter(String name, Long manu_id, Pageable paging) {
-        Optional<ManufactureEntity> manuEntity = manufactureService.readToEntityNotCheck(manu_id);
-        return carRepository.findByNameContainingIgnoreCaseAndManu(Optional.ofNullable(name), manuEntity, paging);
+    private Predicate createPredicate(String name, Long manu_id) {
+        QCarEntity Cars = QCarEntity.carEntity;
+        if (manu_id == -1) return Cars.name.containsIgnoreCase(name == null ? "" : name);
+        return Cars.name.containsIgnoreCase(name == null ? "" : name).and(Cars.manu.eq(manufactureService.readToEntity(manu_id)));
     }
 
-
     public Map<String, Object> readAll(String name, Long manu_id, Pageable paging) {
-
         Map<String, Object> response = new HashMap<>();
-        Page<CarEntity> pageCars = pageForFilter(name, manu_id, paging);
-        response.put("cars", pageCars.getContent().stream().map(entity -> carMapper.toResponse(entity)));
+        Predicate predicate = createPredicate(name, manu_id);
+        Page<CarEntity> pageCars = carRepository.findAll(predicate, paging);
+        response.put("cars", pageCars.getContent().stream().map(carMapper::toResponse));
         response.put("currentPage", pageCars.getNumber());
         response.put("totalItems", pageCars.getTotalElements());
         response.put("totalPages", pageCars.getTotalPages());

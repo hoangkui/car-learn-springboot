@@ -1,15 +1,15 @@
 package com.example.demo.car;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.Date;
+
 
 @Data
+@Getter
 public class CarRequest {
     private String name;
     private String model;

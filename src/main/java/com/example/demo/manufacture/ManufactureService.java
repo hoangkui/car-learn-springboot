@@ -80,8 +80,5 @@ public class ManufactureService {
         });
     }
 
-    public Optional<ManufactureEntity> readToEntityNotCheck(Long id) {
-        return manufactureRepository.findById(id);
-    }
 
 }
